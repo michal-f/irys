@@ -6,12 +6,27 @@ class IrysSpecificator(object):
     def __init__(self):
         """
         load sample data and generate characteristics
-        for each Irys flower
         """
+        self.sample_data = 'iris.csv'
         self.species = ({
-            'setosa': {'sepal_length': [], 'sepal_width': [], 'petal_length': [], 'petal_width': []},
-            'versicolor': {'sepal_length': [], 'sepal_width': [], 'petal_length': [], 'petal_width': []},
-            'virginica': {'sepal_length': [], 'sepal_width': [], 'petal_length': [], 'petal_width': []}
+            'setosa': {
+                'sepal_length': [],
+                'sepal_width': [],
+                'petal_length': [],
+                'petal_width': []
+            },
+            'versicolor': {
+                'sepal_length': [],
+                'sepal_width': [],
+                'petal_length': [],
+                'petal_width': []
+            },
+            'virginica': {
+                'sepal_length': [],
+                'sepal_width': [],
+                'petal_length': [],
+                'petal_width': []
+            }
         })
         self.generate_characteristics()
 
@@ -25,9 +40,9 @@ class IrysSpecificator(object):
 
     def generate_characteristics(self):
         """
-        For each record in sample data check characteristics
+        For each record in sample data append value to lists
         """
-        for line in self.data_csv_reader('iris.csv'):
+        for line in self.data_csv_reader(self.sample_data):
 
             try:
                 self.species[line[4]]['sepal_length'].append(float(line[0]))
@@ -37,31 +52,53 @@ class IrysSpecificator(object):
             except (ValueError, KeyError):
                 pass
 
-    def get_species(self, sepal_length, sepal_width, petal_length, petal_width):
+    def get_species(self,
+                    sepal_length,
+                    sepal_width,
+                    petal_length,
+                    petal_width):
         """
         recognize the iris species
         """
         try:
-            species_points = ({'setosa': 0, 'versicolor': 0, 'virginica': 0})
-            for key in ['setosa', 'versicolor', 'virginica']:
-                if min(self.species[key]['sepal_length']) < float(sepal_length) < max(self.species[key]['sepal_length']):
-                    species_points[key] += 1
-                if min(self.species[key]['sepal_width']) < float(sepal_width) < max(self.species[key]['sepal_width']):
-                    species_points[key] += 1
-                if min(self.species[key]['petal_length']) < float(petal_length) < max(self.species[key]['petal_length']):
-                    species_points[key] += 1
-                if min(self.species[key]['petal_width']) < float(sepal_length) < max(self.species[key]['petal_width']):
-                    species_points[key] += 1
-            return max(species_points.iteritems(), key=operator.itemgetter(1))[0]
+            species_points = ({
+                'setosa': 0,
+                'versicolor': 0,
+                'virginica': 0
+            })
+            species_characteristics = {
+                'sepal_length': sepal_length,
+                'sepal_width': sepal_width,
+                'petal_length': petal_length,
+                'petal_width': petal_width
+            }
+            for species in [
+                'setosa',
+                'versicolor',
+                'virginica'
+            ]:
+                spec = self.species[species]
+                for key, value in species_characteristics.items():
+                    if min(spec[key]) < float(value) < max(spec[key]):
+                        species_points[species] += 1
+            return max(
+                species_points.iteritems(),
+                key=operator.itemgetter(1)
+            )[0]
         except BaseException:
             return 'unable to determine the iris species'
 
 
 def test():
     specificator = IrysSpecificator()
-    species = specificator.get_species('3.1', '3.1', '5.5', '1.8')
+    species = specificator.get_species(
+        '3.1',
+        '3.1',
+        '5.5',
+        '1.8'
+    )
     if species == 'virginica':
-        print("successfully recognized species ['0', '3.1', '5.5', '1.8'] == virginica")
+        print("successfully recognized virginica")
 
 
 if __name__ == '__main__':
